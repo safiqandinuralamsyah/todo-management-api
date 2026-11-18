@@ -1,0 +1,758 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Todo List Management REST API",
+    "version": "1.0.0",
+    "description": "Production-ready REST API for Todo List Management with JWT Authentication, Role-Based Access Control, Soft Delete, Activity Logging, and API Key Machine-to-Machine Integration."
+  },
+  "servers": [
+    {
+      "url": "/api",
+      "description": "Base API Path"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Enter your Bearer token in the format: Bearer <token>"
+      },
+      "apiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-api-key",
+        "description": "Enter your machine-to-machine API key in the x-api-key header"
+      }
+    }
+  },
+  "paths": {
+    "/todos": {
+      "post": {
+        "tags": [
+          "Todos"
+        ],
+        "summary": "Membuat tugas baru",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "title",
+                  "category"
+                ],
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "example": "Menyusun Laporan Keuangan Q4"
+                  },
+                  "description": {
+                    "type": "string",
+                    "example": "Rekapitulasi transaksi dan neraca rugi laba akhir tahun"
+                  },
+                  "completed": {
+                    "type": "boolean",
+                    "example": false
+                  },
+                  "priority": {
+                    "type": "string",
+                    "enum": [
+                      "low",
+                      "medium",
+                      "high"
+                    ],
+                    "example": "high"
+                  },
+                  "dueDate": {
+                    "type": "string",
+                    "format": "date-time",
+                    "example": "2026-12-31T23:59:59.000Z"
+                  },
+                  "category": {
+                    "type": "string",
+                    "example": "654e9bc2a02b1f8c12345678"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Tugas baru berhasil dibuat"
+          },
+          "422": {
+            "description": "Validasi input gagal"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Todos"
+        ],
+        "summary": "Mengambil daftar tugas dengan filtering, sorting, pagination, & search",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          },
+          {
+            "in": "query",
+            "name": "completed",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "false"
+              ]
+            }
+          },
+          {
+            "in": "query",
+            "name": "category",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "priority",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "low",
+                "medium",
+                "high"
+              ]
+            }
+          },
+          {
+            "in": "query",
+            "name": "search",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sortBy",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "created_at",
+                "dueDate",
+                "title",
+                "priority"
+              ]
+            }
+          },
+          {
+            "in": "query",
+            "name": "order",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Daftar tugas berhasil diambil"
+          }
+        }
+      }
+    },
+    "/todos/admin/all": {
+      "delete": {
+        "tags": [
+          "Todos"
+        ],
+        "summary": "Mengarsipkan seluruh tugas (Khusus Admin)",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Seluruh tugas berhasil diarsipkan"
+          },
+          "403": {
+            "description": "Dilarang untuk non-admin"
+          }
+        }
+      }
+    },
+    "/todos/{id}": {
+      "get": {
+        "tags": [
+          "Todos"
+        ],
+        "summary": "Mengambil detail tugas berdasarkan ID",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detail tugas"
+          },
+          "404": {
+            "description": "Tugas tidak ditemukan"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Todos"
+        ],
+        "summary": "Memperbarui data tugas",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "completed": {
+                    "type": "boolean"
+                  },
+                  "priority": {
+                    "type": "string",
+                    "enum": [
+                      "low",
+                      "medium",
+                      "high"
+                    ]
+                  },
+                  "dueDate": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "category": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tugas berhasil diperbarui"
+          },
+          "404": {
+            "description": "Tugas tidak ditemukan"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Todos"
+        ],
+        "summary": "Soft delete tugas",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tugas berhasil diarsipkan (soft delete)"
+          },
+          "404": {
+            "description": "Tugas tidak ditemukan"
+          }
+        }
+      }
+    },
+    "/stats/summary": {
+      "get": {
+        "tags": [
+          "Stats (Machine-to-Machine)"
+        ],
+        "summary": "Mengambil ringkasan statistik sistem menggunakan API Key",
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ringkasan statistik berhasil diambil"
+          },
+          "401": {
+            "description": "API Key tidak valid atau kosong"
+          },
+          "429": {
+            "description": "Rate limit terlampaui"
+          }
+        }
+      }
+    },
+    "/stats/activity-logs": {
+      "get": {
+        "tags": [
+          "Stats (Machine-to-Machine)"
+        ],
+        "summary": "Mengambil daftar log aktivitas pemantauan eksternal",
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Log aktivitas eksternal berhasil diambil"
+          },
+          "401": {
+            "description": "API Key tidak valid atau kosong"
+          }
+        }
+      }
+    },
+    "/categories": {
+      "post": {
+        "tags": [
+          "Categories"
+        ],
+        "summary": "Membuat kategori tugas baru",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "name"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "example": "Pekerjaan & Proyek Kantor"
+                  },
+                  "description": {
+                    "type": "string",
+                    "example": "Daftar tugas operasional dan target deadline kantor"
+                  },
+                  "color": {
+                    "type": "string",
+                    "example": "#3B82F6"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Kategori berhasil dibuat"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "422": {
+            "description": "Validasi input gagal"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Categories"
+        ],
+        "summary": "Mengambil semua kategori aktif",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Daftar kategori berhasil diambil"
+          }
+        }
+      }
+    },
+    "/categories/{id}": {
+      "get": {
+        "tags": [
+          "Categories"
+        ],
+        "summary": "Mengambil detail kategori beserta daftar todo di dalamnya",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detail kategori dan todo aktif"
+          },
+          "404": {
+            "description": "Kategori tidak ditemukan"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Categories"
+        ],
+        "summary": "Memperbarui data kategori",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "color": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Kategori berhasil diperbarui"
+          },
+          "404": {
+            "description": "Kategori tidak ditemukan"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Categories"
+        ],
+        "summary": "Soft delete kategori",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Kategori berhasil diarsipkan (soft-delete)"
+          },
+          "404": {
+            "description": "Kategori tidak ditemukan"
+          }
+        }
+      }
+    },
+    "/auth/register": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Registrasi pengguna baru",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "name",
+                  "email",
+                  "password"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "example": "Budi Santoso"
+                  },
+                  "email": {
+                    "type": "string",
+                    "example": "budi@todoapp.id"
+                  },
+                  "password": {
+                    "type": "string",
+                    "example": "User123!"
+                  },
+                  "role": {
+                    "type": "string",
+                    "enum": [
+                      "user",
+                      "admin"
+                    ],
+                    "example": "user"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Pengguna berhasil didaftarkan"
+          },
+          "409": {
+            "description": "Email sudah terdaftar"
+          },
+          "422": {
+            "description": "Validasi input gagal"
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Login pengguna untuk memperoleh Access & Refresh Token",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "email",
+                  "password"
+                ],
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "example": "budi@todoapp.id"
+                  },
+                  "password": {
+                    "type": "string",
+                    "example": "User123!"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login berhasil"
+          },
+          "401": {
+            "description": "Kredensial tidak valid"
+          },
+          "422": {
+            "description": "Validasi input gagal"
+          }
+        }
+      }
+    },
+    "/auth/refresh": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Memperbarui Access Token menggunakan Refresh Token",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "refreshToken"
+                ],
+                "properties": {
+                  "refreshToken": {
+                    "type": "string",
+                    "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Token berhasil diperbarui"
+          },
+          "401": {
+            "description": "Refresh token tidak valid atau telah kedaluwarsa"
+          }
+        }
+      }
+    },
+    "/activity-logs": {
+      "get": {
+        "tags": [
+          "Activity Logs"
+        ],
+        "summary": "Mengambil riwayat log aktivitas pengguna (admin melihat semua, user melihat miliknya)",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 20
+            }
+          },
+          {
+            "in": "query",
+            "name": "action",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "CREATE_TODO",
+                "UPDATE_TODO",
+                "DELETE_TODO",
+                "CREATE_CATEGORY",
+                "UPDATE_CATEGORY",
+                "DELETE_CATEGORY"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Riwayat aktivitas berhasil diambil"
+          }
+        }
+      }
+    }
+  },
+  "tags": []
+}

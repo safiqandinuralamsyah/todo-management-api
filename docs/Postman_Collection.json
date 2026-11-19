@@ -8,7 +8,7 @@
   "variable": [
     {
       "key": "baseUrl",
-      "value": "https://todo-management-api.vercel.app/api-docs",
+      "value": "https://todo-management-api.vercel.app/api",
       "type": "string"
     },
     {

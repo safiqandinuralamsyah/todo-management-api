@@ -309,68 +309,36 @@ Bagian ini menampilkan bukti pengujian setiap endpoint menggunakan **Postman Run
 3. Pilih Environment **"Todo Management API - Local & Production"**.
 4. Buka **Collection Runner**, pastikan seluruh 18 request terpilih, atur iterasi = 1, centang *Persist responses* dan *Keep variable values*, lalu klik **Start run**.
 
-*(Screenshot pengaturan Collection Runner dengan 18 request terpilih terlampir di bawah):*
-
-![Postman Runner Setup 18 Requests](../Production stage 2/Postman/Cuplikan layar 2026-11-18 183525.png)
+> [!NOTE]
+> Seluruh bukti screenshot pengujian endpoint Postman Runner dan Swagger UI telah tertanam (*embedded*) secara utuh dan beresolusi tinggi di dalam dokumen resmi **[USER_MANUAL_BOOK.docx](./USER_MANUAL_BOOK.docx)**.
 
 ### 5.2 Pengujian Auth Endpoints
-- **Test 1 — Register Pengguna Baru (Berhasil / HTTP 201 Created)**
-- **Test 2 — Login Pengguna (Berhasil / HTTP 200 OK dengan Auto-save Token)**
-- **Test 3 — Refresh Token (Berhasil / HTTP 200 OK)**
-
-*(Screenshot hasil eksekusi runner request 1 s/d 5 terlampir di bawah):*
-
-![Postman Runner Auth & Categories](../Production stage 2/Postman/Cuplikan layar 2026-11-18 183910.png)
+- **Test 1 — Register Pengguna Baru (Berhasil / HTTP 201 Created)**: Mengirim payload registrasi user, mengembalikan status 201 beserta user ID, Access Token, dan Refresh Token.
+- **Test 2 — Login Pengguna (Berhasil / HTTP 200 OK dengan Auto-save Token)**: Mengirim kredensial email & password, mengembalikan status 200 dan menyimpan token ke variabel koleksi.
+- **Test 3 — Refresh Token (Berhasil / HTTP 200 OK)**: Memperbarui Access Token yang kedaluwarsa dengan Refresh Token yang valid.
 
 ### 5.3 Pengujian Todo & Category Endpoints
-- **Test 4 — Create Category & Get All Categories (Berhasil / HTTP 200 & 201)**
-- **Test 5 — Get Category by ID, Update Category, & Delete Category (Soft Delete)**
-- **Test 6 — Create Todo & Get Todos dengan Filtering, Sorting, Search, & Pagination**
-- **Test 7 — Search Todos by Keyword & Get Todo Detail**
-
-*(Screenshot hasil eksekusi runner request 6 s/d 12 terlampir di bawah):*
-
-![Postman Runner Todos CRUD](../Production stage 2/Postman/Cuplikan layar 2026-11-18 183916.png)
+- **Test 4 — Create Category & Get All Categories (Berhasil / HTTP 200 & 201)**: Membuat kategori baru dengan warna hex, mengambil semua kategori aktif pengguna.
+- **Test 5 — Get Category by ID, Update Category, & Delete Category (Soft Delete)**: Mengambil detail kategori, update metadata, dan menghapus dengan mekanisme soft delete (`archived: true`).
+- **Test 6 — Create Todo & Get Todos dengan Filtering, Sorting, Search, & Pagination**: Membuat tugas baru (otomatis catat `CREATE_TODO`), mengambil daftar tugas dengan query parameters lengkap.
+- **Test 7 — Search Todos by Keyword & Get Todo Detail**: Pencarian tugas berbasis kata kunci judul dan deskripsi.
 
 ### 5.4 Pengujian Soft Delete, Admin Archive All, Activity Logs, & M2M Stats
-- **Test 8 — Update Todo & Delete Todo (Soft Delete / `archived: true`)**
-- **Test 9 — Admin Archive All Active Todos (`DELETE /api/todos/admin/all`)**
-- **Test 10 — Get User Activity Logs (`GET /api/activity-logs`)**
-- **Test 11 — Machine-to-Machine Summary Stats (`x-api-key`)**
-- **Test 12 — External Activity Logs Monitoring (`x-api-key`)**
-
-*(Screenshot hasil eksekusi runner request 13 s/d 18 terlampir di bawah):*
-
-![Postman Runner Soft Delete & Stats](../Production stage 2/Postman/Cuplikan layar 2026-11-18 183923.png)
-
-*(Screenshot ringkasan akhir Postman Runner — seluruh 18 pengujian berhasil / 18 passed terlampir di bawah):*
-
-![Postman Runner Summary 18 Passed](../Production stage 2/Postman/Cuplikan layar 2026-11-18 183934.png)
+- **Test 8 — Update Todo & Delete Todo (Soft Delete / `archived: true`)**: Mengubah status tugas menjadi selesai (catat `UPDATE_TODO`), dan soft delete tugas (catat `DELETE_TODO`).
+- **Test 9 — Admin Archive All Active Todos (`DELETE /api/todos/admin/all`)**: Pengujian RBAC admin untuk mengarsipkan semua tugas aktif.
+- **Test 10 — Get User Activity Logs (`GET /api/activity-logs`)**: Riwayat audit log pengguna secara berurutan.
+- **Test 11 — Machine-to-Machine Summary Stats (`x-api-key`)**: Endpoint agregasi statistik untuk integrasi sistem eksternal.
+- **Test 12 — External Activity Logs Monitoring (`x-api-key`)**: Pemantauan log aktivitas eksternal via API Key.
 
 ### 5.5 Pengujian Dokumentasi Interaktif Swagger UI
 Dokumentasi interaktif OpenAPI 3.0 dapat diakses langsung pada URL `/api-docs` (baik di server lokal `http://localhost:3000/api-docs` maupun live deployment Vercel `https://todo-management-api.vercel.app/api-docs`).
-
-*(Screenshot tampilan Swagger UI Header & Deskripsi API terlampir di bawah):*
-
-![Swagger UI Header](../Production stage 2/Swagger/Cuplikan layar 2026-11-18 184802.png)
-
-*(Screenshot daftar seluruh endpoint OpenAPI 3.0 terlampir di bawah):*
-
-![Swagger UI Endpoints List](../Production stage 2/Swagger/Cuplikan layar 2026-11-18 184811.png)
 
 ### 5.6 Otorisasi & Eksekusi Swagger UI
 Swagger UI mendukung autentikasi interaktif:
 1. Klik tombol **Authorize** di pojok kanan atas.
 2. Masukkan Access Token JWT pada skema `bearerAuth` (`Bearer <token>`).
 3. Masukkan kunci API eksternal pada skema `apiKeyAuth` (`x-api-key`).
-
-*(Screenshot modal dialog otorisasi Swagger UI terlampir di bawah):*
-
-![Swagger UI Authorize Dialog](../Production stage 2/Swagger/Cuplikan layar 2026-11-18 185620.png)
-
-*(Screenshot eksekusi endpoint langsung melalui tombol "Try it out" dengan respon HTTP 200 OK terlampir di bawah):*
-
-![Swagger UI Try It Out Execution](../Production stage 2/Swagger/Cuplikan layar 2026-11-18 185704.png)
+4. Uji endpoint secara langsung menggunakan tombol **"Try it out"** dan **"Execute"** (Respon HTTP 200 OK).
 
 ---
 
@@ -453,9 +421,7 @@ Response:
 }
 ```
 
-*(Screenshot hasil validasi input dan pengujian otomatis terlampir di bawah):*
-
-![Validasi Input 422 Terminal](../Production stage 2/Postman/Cuplikan layar 2026-11-18 184220.png)
+*(Hasil eksekusi automated test skenario error handling dan validasi input secara detail terlampir pada dokumen resmi USER_MANUAL_BOOK.docx)*
 
 ### 6.8 Ringkasan Tabel Simulasi Error
 

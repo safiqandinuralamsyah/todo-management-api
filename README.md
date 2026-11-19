@@ -143,9 +143,6 @@ Untuk mengisi database dengan akun admin, akun user biasa, 3 kategori, 9 todo re
 ```bash
 npm run seed
 ```
-Akun bawaan hasil seeder:
-- **Admin**: `admin@todoapp.id` / `Admin123!`
-- **User**: `budi@todoapp.id` / `User123!`
 
 ### 4. Menjalankan Server Pengembangan
 ```bash

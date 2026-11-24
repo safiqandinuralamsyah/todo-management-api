@@ -8,3 +8,7 @@ coverage/
 .DS_Store
 Thumbs.db
 ~$*
+
+# Raw screenshot captures (embedded directly in USER_MANUAL_BOOK.docx)
+Production stage 1/*.png
+Production stage 2/*/*.png

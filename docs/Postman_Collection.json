@@ -12,17 +12,17 @@
       "type": "string"
     },
     {
+      "key": "apiKey",
+      "value": "todo_api_m2m_key_safiq_prod_2026_v2",
+      "type": "string"
+    },
+    {
       "key": "token",
       "value": "",
       "type": "string"
     },
     {
       "key": "refreshToken",
-      "value": "",
-      "type": "string"
-    },
-    {
-      "key": "apiKey",
       "value": "",
       "type": "string"
     },
@@ -57,10 +57,35 @@
             },
             "url": {
               "raw": "{{baseUrl}}/auth/register",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "register"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code adalah 201 Created atau 409 Conflict (User Sudah Ada)\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([201, 409]);",
+                  "});",
+                  "if (pm.response.code === 201) {",
+                  "    var json = pm.response.json();",
+                  "    if (json.data && json.data.accessToken) {",
+                  "        pm.collectionVariables.set(\"token\", json.data.accessToken);",
+                  "        pm.environment.set(\"token\", json.data.accessToken);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "2. Login User (Auto-save Token)",
@@ -69,13 +94,17 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "if (pm.response.code === 200) {",
-                  "    var json = pm.response.json();",
-                  "    if (json.data && json.data.accessToken) {",
-                  "        pm.collectionVariables.set('token', json.data.accessToken);",
-                  "        pm.collectionVariables.set('refreshToken', json.data.refreshToken);",
-                  "        console.log('Token berhasil disimpan ke variabel koleksi');",
-                  "    }",
+                  "pm.test(\"Status code adalah 200 OK (Login Berhasil)\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "var json = pm.response.json();",
+                  "if (json.data && json.data.accessToken) {",
+                  "    pm.collectionVariables.set(\"token\", json.data.accessToken);",
+                  "    pm.environment.set(\"token\", json.data.accessToken);",
+                  "}",
+                  "if (json.data && json.data.refreshToken) {",
+                  "    pm.collectionVariables.set(\"refreshToken\", json.data.refreshToken);",
+                  "    pm.environment.set(\"refreshToken\", json.data.refreshToken);",
                   "}"
                 ],
                 "type": "text/javascript"
@@ -96,8 +125,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/auth/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "login"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
             }
           }
         },
@@ -117,10 +151,33 @@
             },
             "url": {
               "raw": "{{baseUrl}}/auth/refresh",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "refresh"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "refresh"
+              ]
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code adalah 200 OK (Refresh Token Berhasil)\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "var json = pm.response.json();",
+                  "if (json.data && json.data.accessToken) {",
+                  "    pm.collectionVariables.set(\"token\", json.data.accessToken);",
+                  "    pm.environment.set(\"token\", json.data.accessToken);",
+                  "}"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
@@ -134,11 +191,13 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "if (pm.response.code === 201) {",
-                  "    var json = pm.response.json();",
-                  "    if (json.data && json.data._id) {",
-                  "        pm.collectionVariables.set('categoryId', json.data._id);",
-                  "    }",
+                  "pm.test(\"Status code adalah 201 Created (Kategori Tersimpan)\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "var json = pm.response.json();",
+                  "if (json.data && json.data._id) {",
+                  "    pm.collectionVariables.set(\"categoryId\", json.data._id);",
+                  "    pm.environment.set(\"categoryId\", json.data._id);",
                   "}"
                 ],
                 "type": "text/javascript"
@@ -163,8 +222,12 @@
             },
             "url": {
               "raw": "{{baseUrl}}/categories",
-              "host": ["{{baseUrl}}"],
-              "path": ["categories"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "categories"
+              ]
             }
           }
         },
@@ -180,10 +243,27 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/categories",
-              "host": ["{{baseUrl}}"],
-              "path": ["categories"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "categories"
+              ]
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code adalah 200 OK (2. Get All Categories)\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "3. Get Category by ID",
@@ -197,10 +277,28 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/categories/{{categoryId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["categories", "{{categoryId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "categories",
+                "{{categoryId}}"
+              ]
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code adalah 200 OK (3. Get Category by ID)\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "4. Update Category",
@@ -222,10 +320,28 @@
             },
             "url": {
               "raw": "{{baseUrl}}/categories/{{categoryId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["categories", "{{categoryId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "categories",
+                "{{categoryId}}"
+              ]
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code adalah 200 OK (4. Update Category)\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "5. Delete Category (Soft Delete)",
@@ -239,10 +355,28 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/categories/{{categoryId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["categories", "{{categoryId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "categories",
+                "{{categoryId}}"
+              ]
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code adalah 200 OK (5. Delete Category (Soft Delete))\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
@@ -256,11 +390,13 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "if (pm.response.code === 201) {",
-                  "    var json = pm.response.json();",
-                  "    if (json.data && json.data._id) {",
-                  "        pm.collectionVariables.set('todoId', json.data._id);",
-                  "    }",
+                  "pm.test(\"Status code adalah 201 Created (Todo Tersimpan)\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "var json = pm.response.json();",
+                  "if (json.data && json.data._id) {",
+                  "    pm.collectionVariables.set(\"todoId\", json.data._id);",
+                  "    pm.environment.set(\"todoId\", json.data._id);",
                   "}"
                 ],
                 "type": "text/javascript"
@@ -285,8 +421,12 @@
             },
             "url": {
               "raw": "{{baseUrl}}/todos",
-              "host": ["{{baseUrl}}"],
-              "path": ["todos"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "todos"
+              ]
             }
           }
         },
@@ -302,18 +442,53 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/todos?page=1&limit=10&completed=false&priority=high&sortBy=dueDate&order=asc",
-              "host": ["{{baseUrl}}"],
-              "path": ["todos"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "todos"
+              ],
               "query": [
-                { "key": "page", "value": "1" },
-                { "key": "limit", "value": "10" },
-                { "key": "completed", "value": "false" },
-                { "key": "priority", "value": "high" },
-                { "key": "sortBy", "value": "dueDate" },
-                { "key": "order", "value": "asc" }
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "completed",
+                  "value": "false"
+                },
+                {
+                  "key": "priority",
+                  "value": "high"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "dueDate"
+                },
+                {
+                  "key": "order",
+                  "value": "asc"
+                }
               ]
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code adalah 200 OK (2. Get Todos (Filter, Sort, Search, Page))\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "3. Search Todos by Keyword",
@@ -327,13 +502,33 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/todos?search=Laporan",
-              "host": ["{{baseUrl}}"],
-              "path": ["todos"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "todos"
+              ],
               "query": [
-                { "key": "search", "value": "Laporan" }
+                {
+                  "key": "search",
+                  "value": "Laporan"
+                }
               ]
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code adalah 200 OK (3. Search Todos by Keyword)\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "4. Get Todo Detail",
@@ -347,10 +542,28 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/todos/{{todoId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["todos", "{{todoId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "todos",
+                "{{todoId}}"
+              ]
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code adalah 200 OK (4. Get Todo Detail)\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "5. Update Todo",
@@ -372,10 +585,28 @@
             },
             "url": {
               "raw": "{{baseUrl}}/todos/{{todoId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["todos", "{{todoId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "todos",
+                "{{todoId}}"
+              ]
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code adalah 200 OK (5. Update Todo)\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "6. Delete Todo (Soft Delete)",
@@ -389,10 +620,28 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/todos/{{todoId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["todos", "{{todoId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "todos",
+                "{{todoId}}"
+              ]
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code adalah 200 OK (6. Delete Todo (Soft Delete))\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "7. Admin Archive All Todos",
@@ -406,10 +655,29 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/todos/admin/all",
-              "host": ["{{baseUrl}}"],
-              "path": ["todos", "admin", "all"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "todos",
+                "admin",
+                "all"
+              ]
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code 200 OK (Admin) atau 403 Forbidden (RBAC User Terlindungi)\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 403]);",
+                  "});"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
@@ -428,14 +696,37 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/activity-logs?page=1&limit=20",
-              "host": ["{{baseUrl}}"],
-              "path": ["activity-logs"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "activity-logs"
+              ],
               "query": [
-                { "key": "page", "value": "1" },
-                { "key": "limit", "value": "20" }
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
               ]
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code adalah 200 OK (1. Get Activity Logs)\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
@@ -454,10 +745,28 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/stats/summary",
-              "host": ["{{baseUrl}}"],
-              "path": ["stats", "summary"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "stats",
+                "summary"
+              ]
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code adalah 200 OK (1. Get Summary Stats (x-api-key))\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "2. Get External Activity Logs (x-api-key)",
@@ -471,13 +780,34 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/stats/activity-logs?limit=10",
-              "host": ["{{baseUrl}}"],
-              "path": ["stats", "activity-logs"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "stats",
+                "activity-logs"
+              ],
               "query": [
-                { "key": "limit", "value": "10" }
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
               ]
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code adalah 200 OK (2. Get External Activity Logs (x-api-key))\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
         }
       ]
     }
